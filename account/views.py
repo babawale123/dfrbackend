@@ -17,7 +17,7 @@ from rest_framework import permissions, authentication
 @api_view(['POST'])
 def SignUp(request):
     serializer = UserSerializer(data = request.data)
-    if serializer.is_valid(raise_exceptions=True):
+    if serializer.is_valid():
         serializer.save()
         user = User.objects.get(username= request.data['username'])
         user.set_password(request.data['password'])
@@ -61,5 +61,50 @@ class AllUsers(APIView):
         user = User.objects.all()
         serializer = UserSerializer(user,many=True)
         return Response(serializer.data )
+
+
+@api_view(['POST', 'GET','PUT','DELETE'])
+def detailView(request,pk):
     
+    try:
+        user = User.objects.get(pk=pk)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    if request.method == 'GET':
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
+    if request.method == 'PUT':
+        serializer = UserSerializer(User, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == 'DELETE':
+        user.delete()
+        return Response({"deleted successfully"})
+
+class NewDetailView(APIView):
+    
+    def get(self,request,pk):
+        user = User.objects.get(pk=pk)
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+    
+    def post(request,pk):
+        user = User.objects.get()
+        serializer = UserSerializer(instance=user,data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response("updated successfully")
+
+def updateUser(request,pk):
+    user = User.objects.get(pk=pk)
+    serializer = UserSerializer(instance=user,data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)   
+
     
