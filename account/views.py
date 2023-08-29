@@ -105,7 +105,7 @@ class NewDetailView(APIView):
             return Response(serializer.data)
         return Response(serializer.error)
     def delete(self,request,pk):
-        user = User.objects.get(pk)
+        user = self.get_object(pk)
         user.delete()
         return Response({"deleted  successfully"})
   
