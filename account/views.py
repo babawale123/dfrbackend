@@ -87,24 +87,25 @@ def detailView(request,pk):
         return Response({"deleted successfully"})
 
 class NewDetailView(APIView):
-    
+    def get_object(self,pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"user not found"})
     def get(self,request,pk):
-        user = User.objects.get(pk=pk)
+        user = self.get_object(pk)
         serializer = UserSerializer(user)
-        return Response(serializer.data)
-    
-    def post(request,pk):
-        user = User.objects.get()
-        serializer = UserSerializer(instance=user,data=request.data)
+        return Response(serializer.data) 
+
+    def put(self,request,pk):
+        user = self.get_object(pk)
+        serializer = UserSerializer(user,data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response("updated successfully")
-
-def updateUser(request,pk):
-    user = User.objects.get(pk=pk)
-    serializer = UserSerializer(instance=user,data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)   
-
-    
+            return Response(serializer.data)
+        return Response(serializer.error)
+    def delete(self,request,pk):
+        user = User.objects.get(pk)
+        user.delete()
+        return Response({"deleted  successfully"})
+  
